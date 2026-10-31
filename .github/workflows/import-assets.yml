@@ -1,0 +1,40 @@
+name: Import AddCraft assets
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/import-assets.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download original site assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p assets
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://addcraft.bitrix24site.ru/upload/landing/4cf/xk2sxvx8fv1tn8q05pa7u7v1dyhm0lch/chatgpt_image_19_fevr_2026_g_11_50_22_1x.png' -o assets/3d-scan.png
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://addcraft.bitrix24site.ru/upload/landing/290/4x1h9mj05xld8rrjq2suzvfvi000zbg8/chatgpt_image_19_fevr_2026_g_11_53_01_1x.png' -o assets/additive-manufacturing.png
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://addcraft.bitrix24site.ru/upload/landing/52d/hbrkiegysh3gvwsiut4dia5z8yx5eitg/chatgpt_image_19_fevr_2026_g_11_51_48_1x.png' -o assets/3d-design.png
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://addcraft.bitrix24site.ru/upload/landing/506/ra8tawg3qnepehswv28dqgppfy7pnto7/3_54678ii765_1x.jpg' -o assets/kgeu.jpg
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://addcraft.bitrix24site.ru/upload/landing/1fb/zsyner2d483jb4v2j855pnagu6retjgo/fond_sodeystviya_innovatsiyam_2_1x.png' -o assets/fsi-logo.png
+          curl -fL --retry 3 -A 'Mozilla/5.0' 'https://univertechpred.ru/local/templates/mo/assets/img/master/main_project-logo.svg' -o assets/platform-logo.svg
+
+      - name: Commit assets
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets
+          git diff --cached --quiet && exit 0
+          git commit -m 'Add original AddCraft images locally'
+          git push
